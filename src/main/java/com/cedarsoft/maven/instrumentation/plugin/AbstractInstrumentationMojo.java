@@ -101,7 +101,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
       return;
     }
 
-    getLog().info("Starting InstrumentationMojo");
+    getLog().info("Starting InstrumentationMojo - instrumenting <" + getOutputDirectory() + ">");
 
     final Collection<ClassFileTransformer> agents = getAgents();
     final Collection<? extends ClassFile> classFiles = createLocator().findClasses(getOutputDirectory());
