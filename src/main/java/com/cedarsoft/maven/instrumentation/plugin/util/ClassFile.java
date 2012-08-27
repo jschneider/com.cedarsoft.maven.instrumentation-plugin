@@ -29,12 +29,15 @@ public class ClassFile {
   @Nonnull
   private final File classFile;
   @Nonnull
+  private final ClassLoader dependenciesClassLoader;
+  @Nonnull
   private final CtClass compiledClass;
 
-  public ClassFile( @Nonnull final File classFile, @Nonnull ClassLoader classLoader ) throws IOException {
+  public ClassFile( @Nonnull final File classFile, @Nonnull ClassLoader dependenciesClassLoader) throws IOException {
     this.classFile = classFile;
+    this.dependenciesClassLoader = dependenciesClassLoader;
     final ClassPool cp = ClassPool.getDefault();
-    cp.appendClassPath( new LoaderClassPath( classLoader ) );
+    cp.appendClassPath( new LoaderClassPath(dependenciesClassLoader) );
 
     final InputStream ins = new BufferedInputStream( new FileInputStream( classFile ) );
     try {
@@ -78,7 +81,7 @@ public class ClassFile {
   @Nonnull
   private ClassLoader getClassLoader() throws MalformedURLException {
     final File parentDir = getClassParentDir();
-    return new URLClassLoader( new URL[]{parentDir.toURI().toURL()} );
+    return new URLClassLoader( new URL[]{parentDir.toURI().toURL()}, dependenciesClassLoader);
   }
 
   @Nonnull
