@@ -39,11 +39,11 @@ public class ClassFile {
     final ClassPool cp = ClassPool.getDefault();
     cp.appendClassPath( new LoaderClassPath(dependenciesClassLoader) );
 
-    final InputStream ins = new BufferedInputStream( new FileInputStream( classFile ) );
+    final InputStream inputStream = new BufferedInputStream( new FileInputStream( classFile ) );
     try {
-      compiledClass = cp.makeClass( ins );
+      compiledClass = cp.makeClass( inputStream );
     } finally {
-      ins.close();
+      inputStream.close();
     }
   }
 
