@@ -1,4 +1,4 @@
-package com.cedarsoft.maven.instrumentation.plugin;
+package com.cedarsoft.maven.instrumentation.plugin.util;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -19,6 +19,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
+
+import com.cedarsoft.maven.instrumentation.plugin.ClassTransformationException;
 
 /**
  * @author Johannes Schneider (<a href="mailto:js@cedarsoft.com">js@cedarsoft.com</a>)

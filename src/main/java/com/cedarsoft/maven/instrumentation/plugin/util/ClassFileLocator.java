@@ -1,4 +1,4 @@
-package com.cedarsoft.maven.instrumentation.plugin;
+package com.cedarsoft.maven.instrumentation.plugin.util;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.maven.plugin.logging.Log;

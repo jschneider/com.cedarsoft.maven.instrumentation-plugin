@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.cedarsoft.maven.instrumentation.plugin.util.ClassFile;
+import com.cedarsoft.maven.instrumentation.plugin.util.ClassFileLocator;
+
 /**
  * @author Johannes Schneider (<a href="mailto:js@cedarsoft.com">js@cedarsoft.com</a>)
  * @goal instrument
