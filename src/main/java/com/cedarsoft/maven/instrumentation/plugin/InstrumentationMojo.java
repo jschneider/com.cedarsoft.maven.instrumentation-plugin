@@ -3,6 +3,7 @@ package com.cedarsoft.maven.instrumentation.plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -35,15 +36,32 @@ public class InstrumentationMojo extends AbstractMojo {
   private String outputDirectory;
 
 
+  /**
+   * The maven session
+   *
+   * @parameter expression="${project}"
+   * @required
+   * @readonly
+   */
+  protected MavenProject mavenProject;
+
+  protected MavenProject getProject() {
+    return mavenProject;
+  }
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    getLog().info( "Starting InstrumentationMojo" );
+    if (getProject().getPackaging().equals("pom")) {
+      return;
+    }
+
+    getLog().info("Starting InstrumentationMojo");
 
     final Collection<ClassFileTransformer> agents = getAgents();
-    final File outputDirectoryDir = new File( outputDirectory );
-    final Collection<? extends ClassFile> classFiles = createLocator().findClasses( outputDirectoryDir );
+    final File outputDirectoryDir = new File(outputDirectory);
+    final Collection<? extends ClassFile> classFiles = createLocator().findClasses(outputDirectoryDir);
 
-    performClassTransformation( classFiles, agents );
+    performClassTransformation(classFiles, agents);
   }
 
   private static void performClassTransformation( @Nonnull final Iterable<? extends ClassFile> classFiles, @Nonnull final Iterable<? extends ClassFileTransformer> agents ) throws MojoExecutionException {
