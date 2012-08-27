@@ -36,7 +36,7 @@ public class ClassFile {
   public ClassFile( @Nonnull final File classFile, @Nonnull ClassLoader dependenciesClassLoader) throws IOException {
     this.classFile = classFile;
     this.dependenciesClassLoader = dependenciesClassLoader;
-    final ClassPool classPool = ClassPool.getDefault();
+    final ClassPool classPool = new ClassPool(true);
     classPool.appendClassPath(new LoaderClassPath(dependenciesClassLoader));
 
     final InputStream inputStream = new BufferedInputStream( new FileInputStream( classFile ) );
