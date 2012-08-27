@@ -29,7 +29,7 @@ public class InstrumentationTestsMojo extends AbstractInstrumentationMojo {
   /**
    * Project classpath.
    *
-   * @parameter default-value="${project.compileClasspathElements}"
+   * @parameter default-value="${project.testClasspathElements}"
    * @required
    * @readonly
    */
