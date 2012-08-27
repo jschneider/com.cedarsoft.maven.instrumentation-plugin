@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
  * @author Johannes Schneider (<a href="mailto:js@cedarsoft.com">js@cedarsoft.com</a>)
  * @goal instrument-tests
  * @phase process-test-classes
- * @requiresDependencyResolution compile+runtime+test
+ * @requiresDependencyResolution test
  */
 public class InstrumentationTestsMojo extends AbstractInstrumentationMojo {
   /**
