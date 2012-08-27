@@ -36,12 +36,12 @@ public class ClassFile {
   public ClassFile( @Nonnull final File classFile, @Nonnull ClassLoader dependenciesClassLoader) throws IOException {
     this.classFile = classFile;
     this.dependenciesClassLoader = dependenciesClassLoader;
-    final ClassPool cp = ClassPool.getDefault();
-    cp.appendClassPath( new LoaderClassPath(dependenciesClassLoader) );
+    final ClassPool classPool = ClassPool.getDefault();
+    classPool.appendClassPath(new LoaderClassPath(dependenciesClassLoader));
 
     final InputStream inputStream = new BufferedInputStream( new FileInputStream( classFile ) );
     try {
-      compiledClass = cp.makeClass( inputStream );
+      compiledClass = classPool.makeClass( inputStream );
     } finally {
       inputStream.close();
     }
