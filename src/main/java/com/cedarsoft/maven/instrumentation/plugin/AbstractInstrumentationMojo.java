@@ -103,8 +103,14 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
 
     getLog().info("Starting InstrumentationMojo - instrumenting <" + getOutputDirectory() + ">");
 
+    File outputDirectory = getOutputDirectory();
+    if (!outputDirectory.isDirectory()) {
+      getLog().info("Canceling since " + outputDirectory + " does not exist");
+      return;
+    }
+
     final Collection<ClassFileTransformer> agents = getAgents();
-    final Collection<? extends ClassFile> classFiles = createLocator().findClasses(getOutputDirectory());
+    final Collection<? extends ClassFile> classFiles = createLocator().findClasses(outputDirectory);
 
     performClassTransformation(classFiles, agents);
   }
