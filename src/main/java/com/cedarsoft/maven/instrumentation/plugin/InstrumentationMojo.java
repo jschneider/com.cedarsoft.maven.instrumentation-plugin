@@ -76,7 +76,6 @@ public class InstrumentationMojo extends AbstractMojo {
     }
 
     getLog().info("Starting InstrumentationMojo");
-    getLog().info("Classpath Elements: " + classpathElements);
 
     final Collection<ClassFileTransformer> agents = getAgents();
     final Collection<? extends ClassFile> classFiles = createLocator().findClasses(outputDirectory);
@@ -100,7 +99,6 @@ public class InstrumentationMojo extends AbstractMojo {
       }
     }
 
-    getLog().info(Joiner.on("\n\t").join(urls));
     return new URLClassLoader(urls.toArray(new URL[urls.size()]));
   }
 
