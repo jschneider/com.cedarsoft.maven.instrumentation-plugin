@@ -63,8 +63,7 @@ public class ClassFile {
     }
   }
 
-  private void doTransform( @Nonnull final ClassFileTransformer agent ) throws MalformedURLException, CannotCompileException, IOException,
-    IllegalClassFormatException {
+  private void doTransform( @Nonnull final ClassFileTransformer agent ) throws MalformedURLException, CannotCompileException, IOException, IllegalClassFormatException {
     final ClassLoader loader = getClassLoader();
     final String className = getInternalClassName();
     final Class<?> classBeingRedefined = compiledClass.toClass( loader, loader.getClass().getProtectionDomain() );
