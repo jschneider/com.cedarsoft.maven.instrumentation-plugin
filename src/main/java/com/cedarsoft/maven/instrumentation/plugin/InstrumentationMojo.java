@@ -16,6 +16,7 @@ import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.cedarsoft.maven.instrumentation.plugin.util.ClassFile;
@@ -36,6 +37,7 @@ public class InstrumentationMojo extends AbstractInstrumentationMojo {
    */
   protected File outputDirectory;
 
+  @Override
   @Nonnull
   protected File getOutputDirectory() {
     return outputDirectory;
@@ -53,6 +55,6 @@ public class InstrumentationMojo extends AbstractInstrumentationMojo {
   @Nonnull
   @Override
   protected Iterable<? extends String> getClasspathElements() {
-    return classpathElements;
+    return Collections.unmodifiableList( classpathElements );
   }
 }
