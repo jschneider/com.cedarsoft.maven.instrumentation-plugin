@@ -58,7 +58,8 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     }
   }
 
-  private static ClassFileTransformer createAgentInstance(final String className) throws MojoExecutionException {
+  @Nonnull
+  private static ClassFileTransformer createAgentInstance(@Nonnull final String className) throws MojoExecutionException {
     final Class<?> agentClass = resolveClass(className);
     if (!ClassFileTransformer.class.isAssignableFrom(agentClass)) {
       final String message = className + "is not an instance of " + ClassFileTransformer.class;
@@ -67,6 +68,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     return toClassFileTransformerInstance(agentClass);
   }
 
+  @Nonnull
   private static ClassFileTransformer toClassFileTransformerInstance(
     final Class<?> agentClass) throws MojoExecutionException {
     try {
@@ -82,6 +84,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     }
   }
 
+  @Nonnull
   private static Class<?> resolveClass(@Nonnull final String className) throws MojoExecutionException {
     try {
       return Class.forName(className);
@@ -91,6 +94,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     }
   }
 
+  @Nonnull
   protected MavenProject getProject() {
     return mavenProject;
   }
@@ -141,6 +145,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
   @Nonnull
   protected abstract Iterable<? extends String> getClasspathElements();
 
+  @Nonnull
   private Collection<ClassFileTransformer> getAgents() throws MojoExecutionException {
     final Collection<ClassFileTransformer> agents = new ArrayList<ClassFileTransformer>();
     for (final String className : classTransformers) {
