@@ -14,8 +14,8 @@
   <packaging>maven-plugin</packaging>
 
   <scm>
-    <connection>scm:git:git://git.cedarsoft.com/com.cedarsoft.maven.instrumentation</connection>
-    <developerConnection>scm:git:ssh://git.cedarsoft.com/home/git/com.cedarsoft.maven.instrumentation</developerConnection>
+    <connection>scm:git:git://github.com/jschneider/com.cedarsoft.maven.instrumentation-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:jschneider/com.cedarsoft.maven.instrumentation-plugin.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
