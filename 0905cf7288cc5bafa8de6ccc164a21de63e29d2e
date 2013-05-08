@@ -1,11 +1,11 @@
 {
   "built_on": "master",
-  "duration": 109.191,
-  "full_display_name": "com.cedarsoft.maven.instrumentation-plugin #34",
-  "id": "2013-05-07_02-34-32",
-  "number": 34,
+  "duration": 99.51,
+  "full_display_name": "com.cedarsoft.maven.instrumentation-plugin #35",
+  "id": "2013-05-08_02-34-32",
+  "number": 35,
   "result": "SUCCESS",
   "status_message": "?",
-  "time": "2013-05-07 02:34:32 +0200",
-  "url": "job/com.cedarsoft.maven.instrumentation-plugin/34/"
+  "time": "2013-05-08 02:34:32 +0200",
+  "url": "job/com.cedarsoft.maven.instrumentation-plugin/35/"
 }
