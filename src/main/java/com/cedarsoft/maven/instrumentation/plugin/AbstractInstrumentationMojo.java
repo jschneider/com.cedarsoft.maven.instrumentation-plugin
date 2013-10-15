@@ -141,7 +141,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
       }
     }
 
-    return new URLClassLoader(urls.toArray(new URL[urls.size()]));
+    return new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
   }
 
   @Nonnull
