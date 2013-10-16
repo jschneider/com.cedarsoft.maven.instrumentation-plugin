@@ -9,7 +9,7 @@
 
   <groupId>com.cedarsoft.maven</groupId>
   <artifactId>instrumentation-plugin</artifactId>
-  <version>0.6.3-SNAPSHOT</version>
+  <version>0.6.3</version>
 
   <packaging>maven-plugin</packaging>
 
