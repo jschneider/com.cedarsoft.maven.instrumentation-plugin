@@ -73,9 +73,16 @@ public class ClassFile {
     final byte[] classBytes = compiledClass.toBytecode();
     final ProtectionDomain protectionDomain = classBeingRedefined.getProtectionDomain();
 
-    final byte[] transformedBytes = agent.transform( loader, className, classBeingRedefined, protectionDomain, classBytes );
-
-    replaceClassContents( transformedBytes );
+    //Setting the context class loader to be able to parse all annotations/classes from the dependencies
+    ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader( loader );
+      //Transform the class
+      final byte[] transformedBytes = agent.transform( loader, className, classBeingRedefined, protectionDomain, classBytes );
+      replaceClassContents( transformedBytes );
+    } finally {
+      Thread.currentThread().setContextClassLoader( oldContextClassLoader );
+    }
   }
 
   @Nonnull

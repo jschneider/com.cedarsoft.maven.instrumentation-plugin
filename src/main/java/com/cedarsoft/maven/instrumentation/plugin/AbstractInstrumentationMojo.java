@@ -41,7 +41,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
    */
   protected MavenProject mavenProject;
 
-  private static void performClassTransformation(@Nonnull final Iterable<? extends ClassFile> classFiles, @Nonnull final Iterable<? extends ClassFileTransformer> agents) throws MojoExecutionException {
+  private void performClassTransformation(@Nonnull final Iterable<? extends ClassFile> classFiles, @Nonnull final Iterable<? extends ClassFileTransformer> agents) throws MojoExecutionException {
     for (final ClassFile classFile : classFiles) {
       for (final ClassFileTransformer agent : agents) {
         transformClass(classFile, agent);
@@ -49,12 +49,13 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     }
   }
 
-  private static void transformClass(@Nonnull final ClassFile classFile, @Nonnull final ClassFileTransformer agent) throws MojoExecutionException {
+  private void transformClass(@Nonnull final ClassFile classFile, @Nonnull final ClassFileTransformer agent) throws MojoExecutionException {
+    getLog().debug( "Transforming " + classFile.getClassName() + " using " + agent );
     try {
-      classFile.transform(agent);
-    } catch (final ClassTransformationException e) {
-      final String message = MessageFormat.format("Failed to transform class: {0}, using ClassFileTransformer, {1}", classFile, agent.getClass());
-      throw new MojoExecutionException(message, e);
+      classFile.transform( agent );
+    } catch ( final ClassTransformationException e ) {
+      final String message = MessageFormat.format( "Failed to transform class: {0}, using ClassFileTransformer, {1}", classFile, agent.getClass() );
+      throw new MojoExecutionException( message, e );
     }
   }
 
@@ -102,6 +103,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     if (getProject().getPackaging().equals("pom")) {
+      getLog().debug( "Skipping because <" + getProject().getName() + "> is a pom project" );
       return;
     }
 
@@ -139,7 +141,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
       }
     }
 
-    return new URLClassLoader(urls.toArray(new URL[urls.size()]));
+    return new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
   }
 
   @Nonnull
