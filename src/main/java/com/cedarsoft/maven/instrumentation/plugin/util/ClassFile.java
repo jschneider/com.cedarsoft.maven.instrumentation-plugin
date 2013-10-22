@@ -122,6 +122,11 @@ public class ClassFile {
     }
   }
 
+  @Nonnull
+  public File getClassFile() {
+    return classFile;
+  }
+
   @Override
   public String toString() {
     return "ClassFile [classFile=" + classFile + "]";
