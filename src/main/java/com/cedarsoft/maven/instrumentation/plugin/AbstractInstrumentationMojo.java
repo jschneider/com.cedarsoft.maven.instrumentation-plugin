@@ -1,6 +1,7 @@
 package com.cedarsoft.maven.instrumentation.plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -20,6 +21,7 @@ import org.apache.maven.project.MavenProject;
 
 import com.cedarsoft.maven.instrumentation.plugin.util.ClassFile;
 import com.cedarsoft.maven.instrumentation.plugin.util.ClassFileLocator;
+import com.google.common.io.Files;
 
 /**
  * @author Johannes Schneider (<a href="mailto:js@cedarsoft.com">js@cedarsoft.com</a>)
@@ -40,6 +42,30 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
    * @readonly
    */
   protected MavenProject mavenProject;
+
+  /**
+   * @parameter expression="${project.build.directory}"
+   * @read-only
+   * @required
+   */
+  protected File buildDirectory;
+
+  @Nonnull
+  protected File getLastInstrumentationDateFile() throws IOException {
+    return new File(getWorkingDir(), "last-instrumented-at");
+  }
+
+  @Nonnull
+  private File getWorkingDir() throws IOException {
+    File dir = new File(buildDirectory, "instrumentation-plugin");
+    if (!dir.isDirectory()) {
+      if (!dir.mkdir()) {
+        throw new IOException("Could not create directory <" + dir + ">");
+      }
+    }
+    return dir;
+  }
+
 
   private void performClassTransformation(@Nonnull final Iterable<? extends ClassFile> classFiles, @Nonnull final Iterable<? extends ClassFileTransformer> agents) throws MojoExecutionException {
     for (final ClassFile classFile : classFiles) {
@@ -118,9 +144,71 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     final Collection<ClassFileTransformer> agents = getAgents();
     final Collection<? extends ClassFile> classFiles = createLocator().findClasses(outputDirectory);
 
-    performClassTransformation(classFiles, agents);
+    //Now filter the classes based upon the compile date
+    try {
+      performClassTransformation(filterInstrumented(classFiles), agents);
+      storeInstrumentationDate(System.currentTimeMillis());
+    } catch (IOException e) {
+      throw new MojoFailureException("error accessing instrumentation date file", e);
+    }
   }
 
+  /**
+   * This method removes all files that still have been instrumented (based upon the modification date)
+   * @param classFiles all class files
+   * @return only those class files that have not yet instrumented
+   */
+  @Nonnull
+  private Collection<? extends ClassFile> filterInstrumented(@Nonnull Collection<? extends ClassFile> classFiles) throws IOException {
+    long lastInstrumentationDate;
+    try {
+      lastInstrumentationDate = getLastInstrumentationDate();
+      getLog().debug("last instrumentation date: " + lastInstrumentationDate);
+    } catch (NoLastInstrumentationDateFoundException ignore) {
+      getLog().info("Instrumenting all files");
+      //No instrumentation has yet happened, therefore return the complete list
+      return classFiles;
+    }
+
+    List<ClassFile> unInstrumented = new ArrayList<ClassFile>();
+
+    for (ClassFile classFile : classFiles) {
+      long modificationDate = classFile.getClassFile().lastModified();
+
+      if (modificationDate > lastInstrumentationDate) {
+        unInstrumented.add(classFile);
+      }else {
+        getLog().debug("\tSkipping: " + classFile.getClassName() + "\t\t(" + modificationDate + ")");
+      }
+    }
+
+    getLog().info("Instrumenting " + unInstrumented.size() + "/" + classFiles.size() + " files");
+    return unInstrumented;
+  }
+
+  /**
+   * Returns the last instrumentation date
+   * @return the last instrumentation Date
+   * @throws IOException
+   */
+  private long getLastInstrumentationDate() throws NoLastInstrumentationDateFoundException, IOException {
+    File dateFile = getLastInstrumentationDateFile();
+    if (!dateFile.exists()) {
+      throw new NoLastInstrumentationDateFoundException();
+    }
+    return Long.parseLong(new String(Files.toByteArray(dateFile)));
+  }
+
+  /**
+   * Stores the current time to the instrumentation date file
+   * @param date the date
+   * @throws IOException
+   */
+  private void storeInstrumentationDate(long date) throws IOException {
+    File dateFile = getLastInstrumentationDateFile();
+    Files.write(Long.toString(date).getBytes(), dateFile);
+    getLog().debug("Stored last instrumentation date to <" + dateFile.getAbsolutePath() + ">: " + date);
+  }
 
   @Nonnull
   protected abstract File getOutputDirectory();
@@ -160,5 +248,9 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
   @Nonnull
   private ClassFileLocator createLocator() throws MojoExecutionException {
     return new ClassFileLocator(getLog(), createClassLoader());
+  }
+
+  public static class NoLastInstrumentationDateFoundException extends Exception{
+
   }
 }
