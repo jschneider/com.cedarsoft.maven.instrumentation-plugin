@@ -165,7 +165,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
       lastInstrumentationDate = getLastInstrumentationDate();
       getLog().debug("last instrumentation date: " + lastInstrumentationDate);
     } catch (NoLastInstrumentationDateFoundException ignore) {
-      getLog().debug("No last-instrumentation-date file found. Instrumenting all files.");
+      getLog().info("Instrumenting all files");
       //No instrumentation has yet happened, therefore return the complete list
       return classFiles;
     }
@@ -182,6 +182,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
       }
     }
 
+    getLog().info("Instrumenting " + unInstrumented.size() + "/" + classFiles.size() + " files");
     return unInstrumented;
   }
 
