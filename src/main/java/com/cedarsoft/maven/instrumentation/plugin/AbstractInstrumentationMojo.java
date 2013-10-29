@@ -52,8 +52,15 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
 
   @Nonnull
   protected File getLastInstrumentationDateFile() throws IOException {
-    return new File(getWorkingDir(), "last-instrumented-at");
+    return new File(getWorkingDir(), "last_" + getGoal() + "_at");
   }
+
+  /**
+   *
+   * @return
+   */
+  @Nonnull
+  protected abstract String getGoal();
 
   @Nonnull
   private File getWorkingDir() throws IOException {

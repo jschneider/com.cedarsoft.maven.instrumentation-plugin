@@ -20,6 +20,12 @@ public class InstrumentationTestsMojo extends AbstractInstrumentationMojo {
    */
   private File outputDirectory;
 
+  @Nonnull
+  @Override
+  protected String getGoal() {
+    return "instrument-tests";
+  }
+
   @Override
   @Nonnull
   protected File getOutputDirectory() {
