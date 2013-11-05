@@ -30,18 +30,11 @@
 ~~
 
  -----
- The Site
+ Instrumentation Maven Plugin
  -----
  cedarsoft GmbH
  -----
 
-Maven Site for your project
+Instrumentation Plugin
 
- Congratulations! If you are looking at this page then you have successfully generated a
- template site employing the site archetype and you have run:
-
-+-----+
-
-mvn site
-
-+-----+
+  This plugin offers support for instrumentation of your compiled code.
