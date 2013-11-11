@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import com.cedarsoft.maven.instrumentation.plugin.util.ClassFile;
@@ -30,24 +31,18 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
   /**
    * The fully qualified class names of the transformers to apply.
    *
-   * @parameter
-   * @required
    */
+  @Parameter(required = true)
   protected List<String> classTransformers;
   /**
-   * The maven session
-   *
-   * @parameter expression="${project}"
-   * @required
-   * @readonly
+   * The maven project
    */
+  @Parameter(required = true, readonly = true, property = "project")
   protected MavenProject mavenProject;
 
   /**
-   * @parameter expression="${project.build.directory}"
-   * @read-only
-   * @required
    */
+  @Parameter(required = true, readonly = true, property = "project.build.directory")
   protected File buildDirectory;
 
   @Nonnull
