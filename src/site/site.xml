@@ -61,7 +61,9 @@
 
     <menu name="Overview">
       <item name="Introduction" href="index.html" />
-      <!--<item name="Usage" href="usage.html" />-->
+      <item name="Usage" href="usage.html" />
+      <item name="Goals" href="plugin-info.html" />
+      <item name="FAQs" href="faq.html" />
       <!--<item name="Downloads" href="downloads.html" />-->
       <!--<item name="Integration" href="integration.html" />-->
       <!--<item name="FAQs" href="faq.html" />-->
