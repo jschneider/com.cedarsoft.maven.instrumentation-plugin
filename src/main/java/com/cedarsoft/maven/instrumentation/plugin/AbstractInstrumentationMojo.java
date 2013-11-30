@@ -17,6 +17,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -35,9 +36,9 @@ import java.util.List;
 public abstract class AbstractInstrumentationMojo extends AbstractMojo {
   /**
    * The fully qualified class names of the transformers to apply.
-   *
    */
-  @Parameter(required = true)
+  @Parameter( required = false )
+  @Nullable
   protected List<String> classTransformers;
   /**
    * The maven project
@@ -277,9 +278,11 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     transformers.addAll( createConvenienceTransformers() );
 
     //Add the configured class transformers
-    for (final String className : classTransformers) {
-      final ClassFileTransformer instance = createAgentInstance(className);
-      transformers.add( instance );
+    if ( classTransformers != null ) {
+      for (final String className : classTransformers) {
+        final ClassFileTransformer instance = createAgentInstance(className);
+        transformers.add( instance );
+      }
     }
     return transformers;
   }
