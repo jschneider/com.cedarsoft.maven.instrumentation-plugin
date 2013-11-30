@@ -294,9 +294,9 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
 
       if ( isAddNullChecks() ) {
         if ( isUseGuava() ) {
-          transformers.add( new NonNullAnnotationTransformer() );
-        }else{
           transformers.add( new NonNullGuavaAnnotationTransformer() );
+        }else{
+          transformers.add( new NonNullAnnotationTransformer() );
         }
       }
 
