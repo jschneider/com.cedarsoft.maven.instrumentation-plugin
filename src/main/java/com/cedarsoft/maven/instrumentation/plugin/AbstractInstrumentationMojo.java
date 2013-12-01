@@ -1,5 +1,23 @@
 package com.cedarsoft.maven.instrumentation.plugin;
 
+import com.cedarsoft.annotations.NonBlocking;
+import com.cedarsoft.annotations.instrumentation.NonBlockingAnnotationTransformer;
+import com.cedarsoft.annotations.instrumentation.NonNullAnnotationTransformer;
+import com.cedarsoft.annotations.instrumentation.NonNullGuavaAnnotationTransformer;
+import com.cedarsoft.annotations.instrumentation.ThreadAnnotationTransformer;
+import com.cedarsoft.annotations.meta.ThreadDescribingAnnotation;
+import com.cedarsoft.maven.instrumentation.plugin.util.ClassFile;
+import com.cedarsoft.maven.instrumentation.plugin.util.ClassFileLocator;
+import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -12,27 +30,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-
-import com.cedarsoft.maven.instrumentation.plugin.util.ClassFile;
-import com.cedarsoft.maven.instrumentation.plugin.util.ClassFileLocator;
-import com.google.common.io.Files;
-
 /**
  * @author Johannes Schneider (<a href="mailto:js@cedarsoft.com">js@cedarsoft.com</a>)
  */
 public abstract class AbstractInstrumentationMojo extends AbstractMojo {
   /**
    * The fully qualified class names of the transformers to apply.
-   *
    */
-  @Parameter(required = true)
+  @Parameter( required = false )
+  @Nullable
   protected List<String> classTransformers;
   /**
    * The maven project
@@ -44,6 +50,33 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
    */
   @Parameter(required = true, readonly = true, property = "project.build.directory")
   protected File buildDirectory;
+
+  /**
+   * Whether to add the null checks
+   */
+  @Parameter( required = false, defaultValue = "true", property = "addNullChecks" )
+  protected boolean addNullChecks = true;
+
+  /**
+   * Whether to use Guava for null checks.
+   * If this property is set to "true"
+   * {@link Preconditions#checkNotNull(Object)} statements are inserted.
+   */
+  @Parameter( required = false, defaultValue = "false", property = "useGuava" )
+  protected boolean useGuava;
+
+  /**
+   * Whether thread verification code is added for all methods that are annotated
+   * with an {@link ThreadDescribingAnnotation} annotation.
+   */
+  @Parameter( required = false, defaultValue = "true", property = "addThreadVerifications" )
+  protected boolean addThreadVerifications = true;
+
+  /**
+   * Whether to insert verification code for methods annotated with {@link NonBlocking}.
+   */
+  @Parameter( required = false, defaultValue = "true", property = "addNonBlockingVerifications" )
+  protected boolean addNonBlockingVerifications = true;
 
   @Nonnull
   protected File getLastInstrumentationDateFile() throws IOException {
@@ -239,12 +272,46 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
 
   @Nonnull
   private Collection<ClassFileTransformer> getAgents() throws MojoExecutionException {
-    final Collection<ClassFileTransformer> agents = new ArrayList<ClassFileTransformer>();
-    for (final String className : classTransformers) {
-      final ClassFileTransformer instance = createAgentInstance(className);
-      agents.add(instance);
+    final Collection<ClassFileTransformer> transformers = new ArrayList<ClassFileTransformer>();
+
+    //First add the convenience transformers
+    transformers.addAll( createConvenienceTransformers() );
+
+    //Add the configured class transformers
+    if ( classTransformers != null ) {
+      for (final String className : classTransformers) {
+        final ClassFileTransformer instance = createAgentInstance(className);
+        transformers.add( instance );
+      }
     }
-    return agents;
+    return transformers;
+  }
+
+  @Nonnull
+  protected Collection<? extends ClassFileTransformer> createConvenienceTransformers(){
+    try {
+      final Collection<ClassFileTransformer> transformers = new ArrayList<ClassFileTransformer>();
+
+      if ( isAddNullChecks() ) {
+        if ( isUseGuava() ) {
+          transformers.add( new NonNullGuavaAnnotationTransformer() );
+        }else{
+          transformers.add( new NonNullAnnotationTransformer() );
+        }
+      }
+
+      if ( isAddThreadVerifications() ) {
+        transformers.add( new ThreadAnnotationTransformer() );
+      }
+
+      if ( isAddNonBlockingVerifications() ) {
+        transformers.add( new NonBlockingAnnotationTransformer() );
+      }
+
+      return transformers;
+    } catch ( IOException e ) {
+      throw new RuntimeException( e );
+    }
   }
 
   @Nonnull
@@ -252,7 +319,22 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
     return new ClassFileLocator(getLog(), createClassLoader());
   }
 
-  public static class NoLastInstrumentationDateFoundException extends Exception{
+  public boolean isUseGuava() {
+    return useGuava;
+  }
 
+  public boolean isAddNullChecks() {
+    return addNullChecks;
+  }
+
+  public boolean isAddNonBlockingVerifications() {
+    return addNonBlockingVerifications;
+  }
+
+  public boolean isAddThreadVerifications() {
+    return addThreadVerifications;
+  }
+
+  public static class NoLastInstrumentationDateFoundException extends Exception{
   }
 }
