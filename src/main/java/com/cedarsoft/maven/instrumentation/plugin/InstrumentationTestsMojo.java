@@ -1,5 +1,10 @@
 package com.cedarsoft.maven.instrumentation.plugin;
 
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -8,16 +13,10 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Johannes Schneider (<a href="mailto:js@cedarsoft.com">js@cedarsoft.com</a>)
- * @goal instrument-tests
- * @phase process-test-classes
- * @requiresDependencyResolution test
  */
+@Mojo( name = "instrument-tests", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST )
 public class InstrumentationTestsMojo extends AbstractInstrumentationMojo {
-  /**
-   * @parameter expression="${project.build.testOutputDirectory}"
-   * @read-only
-   * @required
-   */
+  @Parameter(readonly = true, required = true, property = "project.build.testOutputDirectory")
   private File outputDirectory;
 
   @Nonnull
@@ -34,11 +33,8 @@ public class InstrumentationTestsMojo extends AbstractInstrumentationMojo {
 
   /**
    * Project classpath.
-   *
-   * @parameter default-value="${project.testClasspathElements}"
-   * @required
-   * @readonly
    */
+  @Parameter(readonly = true, required = true, property = "project.testClasspathElements")
   private List<String> classpathElements;
 
   @Nonnull
