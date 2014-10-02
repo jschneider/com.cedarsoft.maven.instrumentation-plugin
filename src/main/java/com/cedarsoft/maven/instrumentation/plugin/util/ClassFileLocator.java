@@ -1,5 +1,7 @@
 package com.cedarsoft.maven.instrumentation.plugin.util;
 
+import javassist.ClassPool;
+import javassist.LoaderClassPath;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.maven.plugin.logging.Log;
 
@@ -55,9 +57,12 @@ public final class ClassFileLocator {
 
     final Collection<ClassFile> classesFound = new ArrayList<ClassFile>();
 
+    ClassPool classPool = new ClassPool( true );
+    classPool.appendClassPath(new LoaderClassPath(classLoader));
+
     for ( final File file : classFiles ) {
       try {
-        ClassFile classFile = new ClassFile( file, classLoader );
+        ClassFile classFile = new ClassFile( file, classLoader, classPool);
         classesFound.add( classFile );
       } catch ( final IOException e ) {
         getLog().warn( "Failed to read in file: " + file + ", it will be ignored.", e );

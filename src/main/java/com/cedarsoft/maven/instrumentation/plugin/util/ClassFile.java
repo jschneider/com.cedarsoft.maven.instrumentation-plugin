@@ -3,7 +3,6 @@ package com.cedarsoft.maven.instrumentation.plugin.util;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.LoaderClassPath;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedInputStream;
@@ -31,25 +30,48 @@ public class ClassFile {
   @Nonnull
   private final ClassLoader dependenciesClassLoader;
   @Nonnull
-  private final CtClass compiledClass;
+  private final ClassPool classPool;
 
-  public ClassFile( @Nonnull final File classFile, @Nonnull ClassLoader dependenciesClassLoader) throws IOException {
+  public ClassFile( @Nonnull final File classFile, @Nonnull ClassLoader dependenciesClassLoader, @Nonnull ClassPool classPool ) throws IOException {
     this.classFile = classFile;
     this.dependenciesClassLoader = dependenciesClassLoader;
-    final ClassPool classPool = new ClassPool(true);
-    classPool.appendClassPath(new LoaderClassPath(dependenciesClassLoader));
-
-    final InputStream inputStream = new BufferedInputStream( new FileInputStream( classFile ) );
-    try {
-      compiledClass = classPool.makeClass( inputStream );
-    } finally {
-      inputStream.close();
-    }
+    this.classPool = classPool;
   }
 
   @Nonnull
   public String getClassName() {
-    return compiledClass.getName();
+    return getCompiledClass().getName();
+  }
+
+  private CtClass compiledClassCache;
+
+  @Nonnull
+  public CtClass getCompiledClass() {
+    try {
+      if ( compiledClassCache == null ) {
+        compiledClassCache = parseCompiledClass();
+      }
+
+      return compiledClassCache;
+
+    } catch ( IOException e ) {
+      throw new RuntimeException( e );
+    }
+  }
+
+  /**
+   * Parses the compiled class
+   * @return the compiled class
+   * @throws IOException
+   */
+  @Nonnull
+  private CtClass parseCompiledClass() throws IOException {
+    final InputStream inputStream = new BufferedInputStream( new FileInputStream( classFile ) );
+    try {
+      return classPool.makeClass( inputStream );
+    } finally {
+      inputStream.close();
+    }
   }
 
   public void transform( @Nonnull final ClassFileTransformer agent ) throws ClassTransformationException {
@@ -67,8 +89,11 @@ public class ClassFile {
   }
 
   private void doTransform( @Nonnull final ClassFileTransformer agent ) throws CannotCompileException, IOException, IllegalClassFormatException {
+    CtClass compiledClass = getCompiledClass();
+
     final ClassLoader loader = getClassLoader();
     final String className = getInternalClassName();
+
     final Class<?> classBeingRedefined = compiledClass.toClass( loader, loader.getClass().getProtectionDomain() );
     final byte[] classBytes = compiledClass.toBytecode();
     final ProtectionDomain protectionDomain = classBeingRedefined.getProtectionDomain();
@@ -93,12 +118,17 @@ public class ClassFile {
 
   @Nonnull
   public File getClassParentDir() {
-    final String className = compiledClass.getName();
+    final String className = getCompiledClass().getName();
     final int packageCount = className.split( "\\." ).length;
     File parentDir = classFile;
     for ( int i = 0; i < packageCount; i++ ) {
       parentDir = parentDir.getParentFile();
+
+      if ( parentDir == null ) {
+        throw new IllegalStateException( "Illegal parent dir for " + classFile.getAbsolutePath() );
+      }
     }
+
     return parentDir;
   }
 
@@ -109,7 +139,7 @@ public class ClassFile {
    */
   @Nonnull
   private String getInternalClassName() {
-    return compiledClass.getName().replace( '.', '/' );
+    return getCompiledClass().getName().replace( '.', '/' );
   }
 
   private void replaceClassContents( @Nonnull final byte[] replacementBytes ) throws IOException {

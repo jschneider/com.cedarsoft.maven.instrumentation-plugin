@@ -85,7 +85,7 @@ public abstract class AbstractInstrumentationMojo extends AbstractMojo {
 
   /**
    *
-   * @return
+   * @return the goal
    */
   @Nonnull
   protected abstract String getGoal();
